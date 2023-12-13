@@ -20,87 +20,78 @@
                 event.preventDefault();
             }
         }
-
-        window.onload = function() {
-            var modal = document.getElementById("myModal");
-            modal.style.display = "block";
-        }
-
-        function cerrarModal() {
-            var modal = document.getElementById("myModal");
-            modal.style.display = "none";
-        }
-
-        
-        function enviarOpcion(opcion) {
-            cerrarModal(); 
-        }
     </script>
 </head>
 
 <body>
 
     <?php
+    include 'validacion.php';
     require_once '../class/clase_usuarios.php';
     $crud = new usuarios();
     
-    
     if (isset($_POST['guardar'])) {
-        $nombre_usuario = $_POST['nombre_usuario'];
-        $tipo_documento = $_POST['tipo_documento'];
-        $identidad_usuario = $_POST['identidad_usuario'];
-        $apellido_usuario = $_POST['apellido_usuario'];
-        $telef_usuario = $_POST['telef_usuario'];
-        $direcc_usuario = $_POST['direcc_usuario'];
-        $correo_usuario = $_POST['correo_usuario'];
-        $usuario_sistema = $_POST['usuario_sistema'];
-        $password_usuario = $_POST['password_usuario'];
-        
-        $opcion = 1;
-        
-        $estado_usuario = 0;
-        $pass2 = password_hash($password_usuario, PASSWORD_DEFAULT);
-        $codigoactivacion = rand(1000, 9999);
-        $fecha_actual = date("Y-m-d");
-        $hora_actual = date("H:i:s");
 
-        $data = [
-            'identidad_usuario' => $identidad_usuario,
-            'tipo_documento' => $tipo_documento,
-            'nombre_usuario' => $nombre_usuario,
-            'apellido_usuario' => $apellido_usuario,
-            'id_tipo_usuario' => $opcion,
-            'telef_usuario' => $telef_usuario,
-            'direcc_usuario' => $direcc_usuario,
-            'correo_usuario'=> $correo_usuario,
-            'usuario_sistema' => $usuario_sistema,
-            'password_usuario' => $pass2,
-            'estado_usuario' => $estado_usuario
-        ];
-
-        $datados = [
-            'codigo_verificacion' => $codigoactivacion,
-            'fecha_verificacion' => $fecha_actual,
-            'hora_verificacion' => $hora_actual,
-            'identidad_usuario' =>$identidad_usuario
-        ];
-
-        $crud->create($data);
-        $crud->verificacion($datados);
-
-        require_once 'mail.php';
-
-        $correo = new correo();
-
-        $para = ['para' => $correo_usuario];
-        $codigoactivacion = ['codigoactivacion' => $codigoactivacion];
-
-        $correo->enviarCorreo($para, $codigoactivacion); 
-
-        echo '<script>';
-        echo 'alert("Para la activación de la cuenta, se enviará un mensaje de activación al correo electrónico.");';
-        echo 'window.location.href = "../index.php";';
-        echo '</script>';
+        $contrasena = $_POST['password_usuario'];
+        $contrasena_correcta = validarContrasena($contrasena);
+        if ($contrasena_correcta) {
+            $nombre_usuario = $_POST['nombre_usuario'];
+            $tipo_documento = $_POST['tipo_documento'];
+            $identidad_usuario = $_POST['identidad_usuario'];
+            $apellido_usuario = $_POST['apellido_usuario'];
+            $telef_usuario = $_POST['telef_usuario'];
+            $direcc_usuario = $_POST['direcc_usuario'];
+            $correo_usuario = $_POST['correo_usuario'];
+            $usuario_sistema = $_POST['usuario_sistema'];
+            $password_usuario = $_POST['password_usuario'];
+            
+            $opcion = 1;
+            
+            $estado_usuario = 0;
+            $pass2 = password_hash($password_usuario, PASSWORD_DEFAULT);
+            $codigoactivacion = rand(1000, 9999);
+            $fecha_actual = date("Y-m-d");
+            $hora_actual = date("H:i:s");
+    
+            $data = [
+                'identidad_usuario' => $identidad_usuario,
+                'tipo_documento' => $tipo_documento,
+                'nombre_usuario' => $nombre_usuario,
+                'apellido_usuario' => $apellido_usuario,
+                'id_tipo_usuario' => $opcion,
+                'telef_usuario' => $telef_usuario,
+                'direcc_usuario' => $direcc_usuario,
+                'correo_usuario'=> $correo_usuario,
+                'usuario_sistema' => $usuario_sistema,
+                'password_usuario' => $pass2,
+                'estado_usuario' => $estado_usuario
+            ];
+    
+            $datados = [
+                'codigo_verificacion' => $codigoactivacion,
+                'fecha_verificacion' => $fecha_actual,
+                'hora_verificacion' => $hora_actual,
+                'identidad_usuario' =>$identidad_usuario
+            ];
+    
+            $crud->create($data);
+            $crud->verificacion($datados);
+    
+            require_once 'mail.php';
+    
+            $correo = new correo();
+    
+            $para = ['para' => $correo_usuario];
+            $codigoactivacion = ['codigoactivacion' => $codigoactivacion];
+    
+            $correo->enviarCorreo($para, $codigoactivacion); 
+    
+            echo '<script>';
+            echo 'alert("Para la activación de la cuenta, se enviará un mensaje de activación al correo electrónico.");';
+            echo 'window.location.href = "../index.php";';
+            echo '</script>';
+            exit();
+        }
     }
     ?>
     <main>
